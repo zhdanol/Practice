@@ -1,0 +1,142 @@
+class Student:
+    def __init__(self, name, surname, gender):
+        self.name = name
+        self.surname = surname
+        self.gender = gender
+        self.finished_courses = []
+        self.courses_in_progress = []
+        self.grades = {}
+
+    def rate_lecturer(self, lecturer, course, grade):
+        if isinstance(lecturer, Lecturer) and course in lecturer.courses_attached and course in self.courses_in_progress:
+            if course in lecturer.grades:
+                lecturer.grades[course] += [grade]
+            else:
+                lecturer.grades[course] = [grade]
+        else:
+            return 'Ошибка'  
+        
+    def __str__(self):
+        return (f'Имя:{self.name}\n'
+                f'Фамилия:{self.surname}\n'
+                f'Средняя оценка за домашнее задание:{self.grade_average_for_homework()}\n'
+                f'Курс в процессе изучения:{", ".join(self.courses_in_progress)}\n'
+                f'Завершённые курсы:{", ".join(self.finished_courses)}' )  
+        
+    def grade_average_for_homework(self):
+        average_grade = sum([sum(grades) for grades in self.grades.values()], 0)
+        total_courses = sum([len(grades)for grades in self.grades.values()], 0)
+        return average_grade / total_courses if total_courses > 0 else 0
+        
+    def __lt__(self, other):
+        return self.grade_average_for_homework() < other.grade_average_for_homework()
+           
+    
+class Mentor:
+    def __init__(self, name, surname):
+        self.name = name
+        self.surname = surname
+        self.courses_attached = []
+        
+    def rate_hw(self, student, course, grade):
+        if isinstance(student, Student) and course in self.courses_attached and course in student.courses_in_progress:
+            if course in student.grades:
+                student.grades[course] += [grade]
+            else:
+                student.grades[course] = [grade]
+        else:
+            return 'Ошибка'
+class Lecturer(Mentor):
+    def __init__(self, name, surname):
+        super().__init__(name, surname)
+        self.grades = {}
+        
+    def __str__(self):
+        return(f'Имя:{self.name}\n'
+               f'Фамилия:{self.surname}\n'
+               f'Средняя оценка за лекции:{self.average_rating}')
+    def average_rating_lector(self):
+        total_grades = sum([sum(grades) for grades in self.grades.values()], 0)
+        total_courses = sum([len(grades) for grades in self.grades.values()], 0)
+        return total_grades / total_courses if total_courses > 0 else 0
+
+    def __lt__(self, other):
+        return self.average_rating() < other.average_rating()
+    
+            
+class Reviewer(Mentor):
+    def __init__(self, name, surname):
+        super().__init__(name, surname)
+        
+    def __str__(self):
+        return(f'Имя:{self.name}\n'
+               f'Фамилия:{self.surname}'
+               
+        ) 
+best_student = Student('Ruoy', 'Eman', 'Oleg')
+best_student.courses_in_progress += ['Python']
+ 
+cool_lector = Lecturer('Some', 'Buddy')
+cool_lector.courses_attached += ['Python']
+
+reviewer = Reviewer('John', 'Mark')
+reviewer.courses_attached += ['Python']
+
+cool_lector.rate_hw(best_student, 'Python', 10)
+cool_lector.rate_hw(best_student, 'Python', 10)
+cool_lector.rate_hw(best_student, 'Python', 10)
+
+best_student.rate_lecturer(cool_lector, 'Python', 9)
+best_student.rate_lecturer(cool_lector, 'Python', 10)
+
+print(best_student.grades)
+
+student1 = Student('Ruoy', 'Eman', 'Oleg')
+student1.courses_in_progress += ['Python']
+
+student2 = Student('Doe', 'John', 'Alice')
+student2.courses_in_progress += ['Python']
+
+lecturer1 = Lecturer('Some', 'Buddy')
+lecturer1.courses_attached += ['Python']
+
+lecturer2 = Lecturer('Marry', 'Jake')
+lecturer2.courses_attached += ['Python']
+
+reviewer1 = Reviewer('Bob', 'Abel')
+reviewer1.courses_attached += ['Python']
+
+reviewer2 = Reviewer('Carol', 'Taylor')
+reviewer2.courses_attached += ['Python']
+
+lecturer1.rate_hw(student1, 'Python', 10)
+lecturer1.rate_hw(student1, 'Python', 9)
+lecturer1.rate_hw(student1, 'Python', 10)
+
+lecturer2.rate_hw(student2,'Python', 9)
+lecturer2.rate_hw(student2,'Python', 9)
+
+student1.rate_lecturer(lecturer1, 'Python', 10)
+student1.rate_lecturer(lecturer2, 'Python', 10)
+
+student2.rate_lecturer(lecturer1, 'Python', 8)
+student2.rate_lecturer(lecturer2, 'Python', 9)
+
+def grade_average_student(students, course):
+    total_grade = sum([student.grade_average_for_homework() for student in students if course in student.courses_in_progress])
+    return total_grade / len(students) if students else 0
+
+def average_rating_lecturer(lecturers, course):
+    total_rating = sum([lecturer.average_rating_lector() for lecturer in lecturers if course in lecturer.courses_attached])
+    return total_rating / len(lecturers) if lecturers else 0
+
+students = [student1, student2]
+lecturers = [lecturer1, lecturer2]
+
+average_homework = grade_average_student(students, 'Python')
+average_rating = average_rating_lecturer(lecturers, 'Python')
+
+print(f'Средняя оценка за домашние задания по курсу Python: {average_homework}')
+print(f'Средняя оценка за лекции по курсу Python: {average_rating}')
+
+
